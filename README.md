@@ -1,4 +1,4 @@
-# Pycapa
+# Pycapa (modified for compatibility with kafka 1.3.1)
 
 ## Overview
 
