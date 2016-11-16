@@ -1,8 +1,7 @@
 #!/usr/local/bin
 
 from scapy.all import *
-from kurator import zk_broker_list
-from kafka import KafkaClient, KeyedProducer, RoundRobinPartitioner
+from kafka import KafkaProducer
 from kazoo.client import KazooClient 
 import argparse, struct
 
@@ -48,7 +47,7 @@ def produce_callback(packet):
   global producer
   packet_count += 1
   msg = global_header() + packet_header(packet) + str(packet)
-  res = producer.send(topic, packet_count, msg)
+  res = producer.send(topic, msg)
  
   if debug:
     print 'Sent %s' % packet_count
@@ -73,13 +72,11 @@ def main():
 
   zk = KazooClient(args.zookeeper)
   zk.start()
-  
-  kafka = KafkaClient(zk_broker_list(zk))
 
   # the sniff callback only takes one parameter which is the packet
   # so everything else must be global
   global producer
-  producer = KeyedProducer(kafka, partitioner=RoundRobinPartitioner)
+  producer = KafkaProducer(bootstrap_servers='localhost:9092')
 
   global packet_count
   packet_count = 0
